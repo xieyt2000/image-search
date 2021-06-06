@@ -1,14 +1,29 @@
 from db.models import ImageEntry
 from django.http import HttpResponse, Http404
 from .utils import gen_response
-
+from PIL import Image
+import io
 
 def get_image(request):
     image_id = request.GET.get('image', '')
+    size =request.GET.get('size', '')
+
     query = ImageEntry.objects.filter(nid=image_id)
     if query.exists():
-        f_img = open(query[0].path, 'rb')
-        return HttpResponse(content=f_img.read(), content_type='image/jpg')
+        path = query[0].path
+        if size != '':
+            w, h = size.split('*')
+            w, h = int(w), int(h)
+            im = Image.open(path)
+            im.thumbnail((w, h), Image.ANTIALIAS)
+            buf = io.BytesIO()
+            im.save(buf, format='JPEG')
+            content = buf.getvalue()
+        else:
+            f_img = open(path, 'rb')
+            content = f_img.read()
+
+        return HttpResponse(content=content, content_type='image/jpg')
     else:
         return Http404('image not found')
 
