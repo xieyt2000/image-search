@@ -20,7 +20,7 @@ class QueryEngine:
 
 
     def _load_vectors(self, limit=5000):
-        fname = '../wiki-news-300d-1M.vec/wiki-news-300d-1M.vec'
+        fname = '../data/wiki-news-300d-1M.vec'
         fin = io.open(fname, 'r', encoding='utf-8', newline='\n', errors='ignore')
         n, d = map(int, fin.readline().split())
         data = {}
