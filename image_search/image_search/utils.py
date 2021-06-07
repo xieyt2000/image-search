@@ -3,7 +3,6 @@ from db.models import WordEmbed, ImageLabel, ImageEntry
 import math
 import json
 import time
-from image_search import cache
 
 
 
@@ -19,6 +18,7 @@ def cosine_sim(l1, l2):
 
 
 def search_query(query):
+    from image_search import cache
     query = query.lower()
     tokens = query.split(' ')
     embed = [0 for _ in range(300)]
@@ -73,6 +73,7 @@ def rgb_dist(c1, c2):
 
 
 def filter_color_size(images, color, size):
+    from image_search import cache
     if color == '' and size == '':
         return images
     ans = []
