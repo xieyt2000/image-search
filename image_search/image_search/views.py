@@ -1,6 +1,6 @@
 from db.models import ImageEntry
 from django.http import HttpResponse, Http404
-from .utils import gen_response
+from .utils import gen_response, search_query
 from PIL import Image
 import io
 
@@ -29,17 +29,18 @@ def get_image(request):
 
 
 def main_search(request):
-    query_word = request.GET.get('query', '')
+    query = request.GET.get('query', '')
     size = request.GET.get('size', 'Any Size')
     color_type = request.GET.get('colorType', 'Any Color')
     color = request.GET.get('color', '')
     page = int(request.GET.get('page', '1'))
     num = int(request.GET.get('num', '20'))
-    images = []
-    total = 50
-    ie_objs = ImageEntry.objects.all()
-    for ie in ie_objs[:total]:
-        images.append(ie.nid)
+
+    images = search_query(query)
+    total = len(images)
+    if total == 0:
+        return gen_response(code=201, data='', msg='No image found, please change your query')
+
     data = {'total': total, 'page': page, 'num': num, 'images': images[(page-1)*num:page*num]}
     return gen_response(data)
 

@@ -13,9 +13,9 @@ class ImageEntry(models.Model):
 
 
 class ImageLabel(models.Model):
-    nid = models.TextField()
     name = models.TextField()
     embed = models.TextField()
+    invert_idx = models.TextField()
 
 
 class WordEmbed(models.Model):

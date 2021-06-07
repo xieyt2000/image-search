@@ -1,0 +1,4 @@
+python manage.py makemigrations
+python manage.py migrate
+python manage.py init_data E:\大三下\搜索引擎技术基础\bigwork\image-search\data 2000
+python manage.py runserver 127.0.0.1:8000
