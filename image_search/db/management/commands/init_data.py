@@ -14,7 +14,7 @@ def load_vectors(fname, limit=5000):
     cnt = 0
     for line in tqdm(fin):
         tokens = line.rstrip().split(' ')
-        data[tokens[0]] = [float(t) for t in tokens[1:]]
+        data[tokens[0].lower()] = [float(t) for t in tokens[1:]]
         cnt += 1
         if cnt >= limit:
             break
@@ -32,6 +32,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('data_dir', type=str, default='')
         parser.add_argument('num_img', type=int, default=5000)
+
 
     def handle(self, *args, **options):
         print('Save image info...')
@@ -78,8 +79,8 @@ class Command(BaseCommand):
                 embed = list_add(embed, vectors[token])
             label_obj.embed = embed
             label_obj.save()
-        print(all_tokens)
-        all_tokens = all_tokens | set(list(vectors.keys())[:20000])
+        all_words = [w.lower() for w in vectors.keys()]
+        all_tokens = all_tokens | set(all_words[:20000])
         print('Save word vectors...')
         for word in tqdm(all_tokens):
             if not word.isalpha(): continue

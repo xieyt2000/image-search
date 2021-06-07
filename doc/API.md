@@ -8,8 +8,7 @@
 {
     "code": 200,
     "data": {
-        
-    }
+    },
     "message": ""
 }
 ```
@@ -35,9 +34,8 @@
 | 参数名    | 必选 | 类型                                                        | 说明         | 默认值      |
 | :-------- | :--- | :---------------------------------------------------------- | ------------ | ----------- |
 | query     | 是   | string                                                      | 查询词       |             |
-| size      | 否   | string ([Any size, Large, Medium, Icon])                    | 图片大小     | 'Any size'  |
-| colorType | 否   | string ([Any color,Black and white,Transparent,Pick color]) | 颜色筛选类型 | 'Any color' |
-| color     | 否   | string ('#000000')                                          | 颜色         |             |
+| size      | 否   | string ([Any size, Large, Medium, Small])                    | 图片大小     | 'Any size'  |
+| color     | 否   | string ('#000000')                                          | 颜色 为空表示不筛选        |             |
 | page      | 否   | int                                                         | 翻页         | 1           |
 | num       | 否   | int                                                         | 一页数量     | 20          |
 
