@@ -2,7 +2,7 @@ import math
 import json
 import time
 from image_search.db import DB
-
+import colorsys
 
 def list_add(l1, l2):
     return [a1 + a2 for (a1, a2) in zip(l1, l2)]
@@ -52,6 +52,26 @@ def search_query(query):
     return [c[0] for c in candidates]
 
 
+def search_similar(image_id, num):
+    if image_id in DB.img_info:
+        pos_labels = DB.img_info[image_id]
+        candidates = {}
+        for label in pos_labels:
+            invert_idx = DB.label_info[label]
+            for img, score in invert_idx:
+                if score < 0.05: break
+                if img in candidates:
+                    candidates[img] += score
+                else:
+                    candidates[img] = score
+        candidates = list(candidates.items())
+        candidates.sort(key=lambda x: x[1], reverse=True)
+        return [c[0] for c in candidates[:num]]
+    else:
+        return []
+
+
+
 def hex2rgb(hexcode):
     r = int(hexcode[1:3], 16)
     g = int(hexcode[3:5], 16)
@@ -82,12 +102,17 @@ def filter_color_size(images, color, size):
         info = DB.img_info[img]
         main_color = info['main_color']
         img_size = info['size']
+        match = False
         if color != '':
-            diff = 0
+            diff = []
             for c in main_color:
                 c_rgb = c[0]
                 c_prop = c[1]
-                diff += rgb_dist(color_rgb, c_rgb) * c_prop
-        if (size == '' or img_size == size) and (color == '' or diff < 250):
+                diff = rgb_dist(color_rgb, c_rgb)
+                if c_prop > 0.2 and diff < 300:
+                    match = True
+
+        if (size == '' or img_size == size) and (color == '' or match):
             ans.append(img)
     return ans
+

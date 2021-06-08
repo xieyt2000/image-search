@@ -1,9 +1,10 @@
 from django.http import HttpResponse, Http404, JsonResponse
-from .utils import search_query, filter_color_size
+from .utils import search_query, filter_color_size, search_similar
 from PIL import Image
 import io
 import time
 from image_search.db import DB
+
 
 def gen_response(data, msg='', code=200):
     return JsonResponse({
@@ -18,7 +19,7 @@ def get_image(request):
     size = request.GET.get('size', '')
 
     if image_id in DB.img_info:
-        path = DB.img_info['path']
+        path = DB.img_info[image_id]['path']
         if size != '':
             w, h = size.split('*')
             w, h = int(w), int(h)
@@ -36,18 +37,15 @@ def get_image(request):
         return Http404('image not found')
 
 
-def main_search(request):
+def main_query(request):
     query = request.GET.get('query', '')
     size = request.GET.get('size', '')
     color = request.GET.get('color', '')
     page = int(request.GET.get('page', '1'))
     num = int(request.GET.get('num', '20'))
 
-    start = time.time()
     images = search_query(query)
-    print(time.time() - start)
     images = filter_color_size(images, color, size)
-    print(time.time() - start)
     total = len(images)
     if total == 0:
         return gen_response(code=201, data='', msg='No image found, please change your query')
@@ -59,9 +57,6 @@ def main_search(request):
 def get_similar(request):
     image = request.GET.get('image', '')
     num = int(request.GET.get('num', ''))
-    images = []
-    ie_objs = ImageEntry.objects.all()
-    for ie in ie_objs[:num]:
-        images.append(ie.nid)
-    data = {'num': num, 'images': images}
+    images = search_similar(image, num)
+    data = {'num': len(images), 'images': images}
     return gen_response(data)

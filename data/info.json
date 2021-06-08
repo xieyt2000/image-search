@@ -2,11 +2,11 @@
     "name": "open-images-v6",
     "zoo_dataset": "fiftyone.zoo.datasets.base.OpenImagesV6Dataset",
     "dataset_type": "fiftyone.types.dataset_types.OpenImagesV6Dataset",
-    "num_samples": 50,
+    "num_samples": 5000,
     "downloaded_splits": {
         "validation": {
             "split": "validation",
-            "num_samples": 50
+            "num_samples": 5000
         }
     },
     "classes": [
