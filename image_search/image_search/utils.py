@@ -28,16 +28,16 @@ def search_query(query):
             embed = list_add(embed, DB.word_vec[token])
         else:
             continue
-    if sum(embed) == 0: return []
 
-    all_sim = [(k, cosine_sim(embed, v['embed'])) for k, v in DB.label_info.items()]
+    if sum(embed) == 0: return []
+    all_sim = [(k, max([cosine_sim(embed, e) for e in v['embed']])) for k, v in DB.label_info.items()]
     all_sim.sort(key=lambda x: x[1], reverse=True)
-    # print(all_sim[:10])
+    print(all_sim[:3])
     candidates = {}
     for i, (label, sim) in enumerate(all_sim[:3]):
         label_info = DB.label_info[label]
         for img, score in label_info['invert_idx']:
-            val = math.pow(100, sim)
+            val = math.pow(10000, sim)
             if val < 0: val = 0
             if img in candidates:
                 candidates[img] += score * val
@@ -47,11 +47,10 @@ def search_query(query):
     candidates = list(candidates.items())
     candidates.sort(key=lambda x: x[1], reverse=True)
 
-    # for can in candidates[:10]:
-    #     can_id = can[0]
-    #     obj = ImageEntry.objects.get(nid=can_id)
-    #
-    #     print(can[1], obj.pos_labels, obj.neg_labels)
+    for can in candidates[:10]:
+        can_id = can[0]
+        pos_labels = DB.img_info[can_id]['pos_labels']
+        print(can[1], pos_labels)
     return [c[0] for c in candidates]
 
 
@@ -107,13 +106,11 @@ def filter_color_size(images, color, size):
         match = False
         match_diff = 0
         if color != '':
-            diff = []
             for c in main_color:
                 c_rgb = c[0]
                 c_prop = c[1]
                 diff = rgb_dist(color_rgb, c_rgb)
-                #print(diff)
-                if c_prop > 0.1 and diff < 0.5:
+                if c_prop > 0.1 and diff < 0.4:
                     match = True
                     match_diff = diff
                     break

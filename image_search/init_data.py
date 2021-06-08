@@ -17,16 +17,18 @@ WORD_SIZE = args.word_size
 DATA_DIR = args.data_dir
 
 
-def load_vectors(fname, limit=5000):
+def load_vectors(fname, limit=5000, filter=[]):
     fin = io.open(fname, 'r', encoding='utf-8', newline='\n', errors='ignore')
     data = OrderedDict()
     cnt = 0
     for line in tqdm(fin):
-        tokens = line.rstrip().split(' ')
-        data[tokens[0].lower()] = [float(t) for t in tokens[1:]]
         cnt += 1
         if cnt >= limit:
             break
+        tokens = line.rstrip().split(' ')
+        if (not tokens[0] in filter) and cnt > WORD_SIZE: continue
+        data[tokens[0].lower()] = [float(t) for t in tokens[1:]]
+
     return data
 
 
@@ -61,22 +63,29 @@ def init_data():
     del dataset
     gc.collect()
 
-    vectors = load_vectors(os.path.join(DATA_DIR, 'wiki-news-300d-1M.vec'), limit=500000)
+
     print('Processing labels...')
     all_tokens = set()
     for label in all_labels:
         tokens = label.split(' ')
-        embed = [0 for _ in range(300)]
         for token in tokens:
             token = token.replace('(', '')
             token = token.replace(')', '')
             token = token.strip()
             all_tokens.add(token)
-            embed = list_add(embed, vectors[token])
+    vectors = load_vectors(os.path.join(DATA_DIR, 'wiki-news-300d-1M.vec'), limit=500000, filter=all_tokens)
+    for label in all_labels:
+        tokens = label.split(' ')
+        embed = []
+        for token in tokens:
+            token = token.replace('(', '')
+            token = token.replace(')', '')
+            token = token.strip()
+            embed.append(vectors[token])
         label_info[label]['embed'] = embed
 
     all_words = [w.lower() for w in vectors.keys()]
-    all_tokens = all_tokens | set(all_words[:WORD_SIZE])
+    all_tokens = all_tokens | set(all_words)
     print('Save word vectors...')
     filtered_tokens = []
     for word in tqdm(all_tokens):

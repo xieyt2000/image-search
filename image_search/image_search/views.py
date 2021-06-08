@@ -4,6 +4,7 @@ from PIL import Image
 import io
 import time
 from image_search.db import DB
+from translate import Translator
 
 
 def gen_response(data, msg='', code=200):
@@ -36,9 +37,19 @@ def get_image(request):
     else:
         return Http404('image not found')
 
+def is_chinese(string):
+    for ch in string:
+        if u'\u4e00' <= ch <= u'\u9fff':
+            return True
+
+    return False
+
 
 def main_query(request):
     query = request.GET.get('query', '')
+    if is_chinese(query):
+        query = Translator(from_lang="chinese",to_lang="english").translate(query)
+    print(query)
     size = request.GET.get('size', '')
     color = request.GET.get('color', '')
     page = int(request.GET.get('page', '1'))
