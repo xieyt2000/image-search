@@ -1,6 +1,7 @@
 data/validation/
 data/wiki-news-300d-1M.vec
 data/info.json
+data/db.pkl
 .idea/
 
 # Byte-compiled / optimized / DLL files

@@ -1,8 +1,9 @@
-from db.models import ImageEntry
 from django.http import HttpResponse, Http404, JsonResponse
 from .utils import search_query, filter_color_size
 from PIL import Image
-import io, time
+import io
+import time
+from image_search.db import DB
 
 def gen_response(data, msg='', code=200):
     return JsonResponse({
@@ -11,13 +12,13 @@ def gen_response(data, msg='', code=200):
         'msg': msg
     })
 
+
 def get_image(request):
     image_id = request.GET.get('image', '')
-    size =request.GET.get('size', '')
+    size = request.GET.get('size', '')
 
-    query = ImageEntry.objects.filter(nid=image_id)
-    if query.exists():
-        path = query[0].path
+    if image_id in DB.img_info:
+        path = DB.img_info['path']
         if size != '':
             w, h = size.split('*')
             w, h = int(w), int(h)
@@ -44,14 +45,14 @@ def main_search(request):
 
     start = time.time()
     images = search_query(query)
-    print(time.time()-start)
+    print(time.time() - start)
     images = filter_color_size(images, color, size)
     print(time.time() - start)
     total = len(images)
     if total == 0:
         return gen_response(code=201, data='', msg='No image found, please change your query')
 
-    data = {'total': total, 'page': page, 'num': num, 'images': images[(page-1)*num:page*num]}
+    data = {'total': total, 'page': page, 'num': num, 'images': images[(page - 1) * num:page * num]}
     return gen_response(data)
 
 
