@@ -4,7 +4,7 @@ A simple image search engine.
 
 Project of *Fundamentals of Search Engine Technology* (THU 2021).
 
-**Developer**: yueyang2000, xieyt2000
+**Developer**: [乐阳](https://github.com/yueyang2000), [谢云桐](https://github.com/xieyt2000)
 
 ### Backend Usage
 
