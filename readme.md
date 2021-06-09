@@ -1,10 +1,15 @@
 # Image Search
 
-A simple image search engine.
+A simple image search engine. 
 
+Project of *Fundamentals of Search Engine Technology* (THU 2021).
 
+**Developer**: yueyang2000, xieyt2000
 
 ### Backend Usage
+
+- Download FastText [word vectors](https://dl.fbaipublicfiles.com/fasttext/vectors-english/wiki-news-300d-1M.vec.zip) , decompress and save to `./data/wiki-news-300d-1M.vec`  
+- Run commands:
 
 ```
 cd image_search
@@ -14,10 +19,6 @@ python manage.py migrate
 python manage.py runserver 127.0.0.1:8000
 ```
 
-- [path-to-image-folder] should be the absolute path of the `data/` folder in the project root directory
-
-- Download FastText [word vectors](https://dl.fbaipublicfiles.com/fasttext/vectors-english/wiki-news-300d-1M.vec.zip) , decompress and save to `data/wiki-news-300d-1M.vec`  
-
 - For `init_data.py`, full usage:
 
     - `--img_size`: how many image to include, default 5000
@@ -26,7 +27,13 @@ python manage.py runserver 127.0.0.1:8000
 
     - `--build_index`: to build index only, without init data again
 
+### Frontend Usage
 
-### Frontend
+- You shoud have node.js installed, then run:
 
-https://github.com/xieyt2000/ImageSearchFrontend
+```
+cd frontend
+npm install
+npm run dev
+```
+

@@ -2,7 +2,6 @@ from django.http import HttpResponse, Http404, JsonResponse
 from .utils import search_query, filter_color_size, search_similar
 from PIL import Image
 import io
-import time
 from image_search.db import DB
 from translate import Translator
 

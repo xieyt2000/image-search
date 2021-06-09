@@ -1,6 +1,3 @@
-import math
-import json
-import time
 from image_search.db import DB
 import colorsys
 import math
@@ -21,36 +18,32 @@ def cosine_sim(l1, l2):
 def search_query(query):
     query = query.lower()
     tokens = query.split(' ')
-    embed = [0 for _ in range(300)]
+    candidates = {}
+
     for token in tokens:
         token = token.strip()
-        if token in DB.word_vec:
-            embed = list_add(embed, DB.word_vec[token])
-        else:
-            continue
-
-    if sum(embed) == 0: return []
-    all_sim = [(k, max([cosine_sim(embed, e) for e in v['embed']])) for k, v in DB.label_info.items()]
-    all_sim.sort(key=lambda x: x[1], reverse=True)
-    print(all_sim[:3])
-    candidates = {}
-    for i, (label, sim) in enumerate(all_sim[:3]):
-        label_info = DB.label_info[label]
-        for img, score in label_info['invert_idx']:
-            val = math.pow(10000, sim)
-            if val < 0: val = 0
-            if img in candidates:
-                candidates[img] += score * val
-            else:
-                if score > 0.05:
-                    candidates[img] = score * val
+        if not token in DB.word_vec: continue
+        embed = DB.word_vec[token]
+        all_sim = [(k, max([round(cosine_sim(embed, e), 4) for e in v['embed']])) for k, v in DB.label_info.items()]
+        all_sim.sort(key=lambda x: x[1], reverse=True)
+        print(all_sim[:3])
+        for i, (label, sim) in enumerate(all_sim[:3]):
+            label_info = DB.label_info[label]
+            for img, score in label_info['invert_idx']:
+                val = math.pow(10000, sim)
+                if val < 0: val = 0
+                if img in candidates:
+                    candidates[img] += score * val
+                else:
+                    if score > 0.05:
+                        candidates[img] = score * val
     candidates = list(candidates.items())
     candidates.sort(key=lambda x: x[1], reverse=True)
 
     for can in candidates[:10]:
         can_id = can[0]
         pos_labels = DB.img_info[can_id]['pos_labels']
-        print(can[1], pos_labels)
+        print(can[0], can[1], pos_labels)
     return [c[0] for c in candidates]
 
 
@@ -110,7 +103,7 @@ def filter_color_size(images, color, size):
                 c_rgb = c[0]
                 c_prop = c[1]
                 diff = rgb_dist(color_rgb, c_rgb)
-                if c_prop > 0.1 and diff < 0.4:
+                if c_prop > 0.1 and diff < 0.25:
                     match = True
                     match_diff = diff
                     break

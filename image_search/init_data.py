@@ -4,6 +4,7 @@ from tqdm import tqdm
 from PIL import Image
 import colorgram
 import fiftyone.zoo as foz
+import math
 
 parser = argparse.ArgumentParser('Initialize Data For the Search Engine')
 parser.add_argument('--img_size', type=int, default=5000)
@@ -98,31 +99,6 @@ def init_data():
         label_info=label_info,
         word_vec=word_vec
     )
-    pickle.dump(db, open(os.path.join(DATA_DIR, 'db.pkl'), 'wb'))
-    return db
-
-
-def build_index(db=None):
-    if db is None:
-        db = pickle.load(open(os.path.join(DATA_DIR, 'db.pkl'), 'rb'))
-    const = 0.05
-    all_label = list(db['label_info'].keys())
-    all_score = {l: {} for l in all_label}
-
-    print('Computing index')
-    for img, info in tqdm(db['img_info'].items()):
-        pos_labels = info['pos_labels']
-        neg_labels = info['neg_labels']
-        score_tot = len(pos_labels) + const * len(neg_labels) + 1  # in case of no pos label
-        for l in pos_labels:
-            all_score[l][img] = 1 / score_tot
-        for l in neg_labels:
-            all_score[l][img] = const / score_tot
-
-    for label, info in tqdm(db['label_info'].items()):
-        indices = list(all_score[label].items())
-        indices.sort(key=lambda x: x[1], reverse=True)
-        info['invert_idx'] = indices
 
     print('Analyze img metainfo')
     for info in tqdm(db['img_info'].values()):
@@ -139,7 +115,33 @@ def build_index(db=None):
         main_colors = colorgram.extract(im, 5)
         color_list = [(tuple(c.rgb), c.proportion) for c in main_colors]
         info['main_color'] = color_list
+
     pickle.dump(db, open(os.path.join(DATA_DIR, 'db.pkl'), 'wb'))
+    return db
+
+
+def build_index(db=None):
+    if db is None:
+        db = pickle.load(open(os.path.join(DATA_DIR, 'db.pkl'), 'rb'))
+    const = 0.05
+    all_label = list(db['label_info'].keys())
+    all_score = {l: {} for l in all_label}
+
+    print('Computing index')
+    for img, info in tqdm(db['img_info'].items()):
+        pos_labels = info['pos_labels']
+        neg_labels = info['neg_labels']
+        for l in pos_labels:
+            all_score[l][img] = 1 + 1 / (1 + math.log(len(pos_labels)))
+        for l in neg_labels:
+            all_score[l][img] = const / len(neg_labels)
+
+    for label, info in tqdm(db['label_info'].items()):
+        indices = list(all_score[label].items())
+        indices.sort(key=lambda x: x[1], reverse=True)
+        info['invert_idx'] = indices
+    pickle.dump(db, open(os.path.join(DATA_DIR, 'db.pkl'), 'wb'))
+
 
 
 if __name__ == '__main__':
