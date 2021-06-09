@@ -6,6 +6,8 @@ Project of *Fundamentals of Search Engine Technology* (THU 2021).
 
 **Developer**: [乐阳](https://github.com/yueyang2000), [谢云桐](https://github.com/xieyt2000)
 
+<img src="doc\图片搜索引擎实验报告_pic\image-20210608212859075.png" alt="image-20210608212859075" style="zoom:50%;" />
+
 ### Backend Usage
 
 - Download FastText [word vectors](https://dl.fbaipublicfiles.com/fasttext/vectors-english/wiki-news-300d-1M.vec.zip) , decompress and save to `./data/wiki-news-300d-1M.vec`  
